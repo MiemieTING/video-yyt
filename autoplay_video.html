@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<!-- 手机端关键：宽度适配，禁止缩放，否则微信内打开会很小 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- playsinline：iOS微信内不全屏也不自动播放的前提；webkit-playsinline兼容老iOS -->
+<title>自动播放</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+  /* 视频铺满整个屏幕，保持比例不变形 */
+  #v {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;   /* contain=完整显示不裁切；想铺满裁切改成cover */
+  }
+</style>
+</head>
+<body>
+  <!--
+    ↓↓↓ 把下面 src="..." 换成你上传到对象存储后的视频直链 ↓↓↓
+    例如：https://your-bucket.oss-cn-hangzhou.aliyuncs.com/myvideo.mp4
+  -->
+  <video id="v"
+         autoplay
+         muted
+         loop
+         playsinline
+         webkit-playsinline
+         x5-playsinline
+         preload="auto">
+    <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+  </video>
+
+<script>
+(function () {
+  var v = document.getElementById('v');
+
+  // 1. 静音自动播放——再保一次险：有些浏览器/微信版本需要在代码里手动调 play()
+  v.muted = true;
+  var tryPlay = function () {
+    var p = v.play();
+    if (p && typeof p.then === 'function') {
+      p.catch(function () {
+        // 被拦截时，监听第一次触碰/点击后立即播放
+        var resume = function () {
+          v.play();
+          window.removeEventListener('touchstart', resume);
+          window.removeEventListener('click', resume);
+        };
+        window.addEventListener('touchstart', resume);
+        window.addEventListener('click', resume);
+      });
+    }
+  };
+  tryPlay();
+
+  // 2. 页面可见时继续播放（切到后台再回来常见会停）
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) { tryPlay(); }
+  });
+
+  // 3. 微信内置浏览器特殊处理：等 WeixinJSBridgeReady 再播一次
+  if (window.WeixinJSBridge) {
+    window.WeixinJSBridge.on('WeixinJSBridgeReady', tryPlay);
+  }
+})();
+</script>
+</body>
+</html>
