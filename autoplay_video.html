@@ -34,13 +34,11 @@
          webkit-playsinline
          x5-playsinline
          preload="auto">
-    <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+    <source src="https://yyt-video1.oss-cn-hangzhou.aliyuncs.com/normal_video.mp4" type="video/mp4">
   </video>
-
 <script>
 (function () {
   var v = document.getElementById('v');
-
   // 1. 静音自动播放——再保一次险：有些浏览器/微信版本需要在代码里手动调 play()
   v.muted = true;
   var tryPlay = function () {
@@ -59,12 +57,10 @@
     }
   };
   tryPlay();
-
   // 2. 页面可见时继续播放（切到后台再回来常见会停）
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden) { tryPlay(); }
   });
-
   // 3. 微信内置浏览器特殊处理：等 WeixinJSBridgeReady 再播一次
   if (window.WeixinJSBridge) {
     window.WeixinJSBridge.on('WeixinJSBridgeReady', tryPlay);
